@@ -50,10 +50,10 @@
     [data-font="serif"] { --font-active: 'Lora', serif; }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
+    html, body {
       margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text);
       min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden;
-      padding-bottom: calc(68px + env(safe-area-inset-bottom));
+      padding-bottom: calc(74px + env(safe-area-inset-bottom));
     }
     header {
       position: sticky; top: 0; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--border);
@@ -62,21 +62,21 @@
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; }
     .brand-badge {
       width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: #fff; display: grid; place-items: center; font-size: 1.1rem; overflow: hidden;
+      color: #fff; display: grid; place-items: center; font-size: 1.1rem; overflow: hidden; flex-shrink: 0;
     }
-    .brand-badge img { width: 100%; height: 100%; object-fit: cover; }
+    .brand-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .btn {
       border: 1px solid var(--border); background: var(--surface); color: var(--text);
       padding: 8px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px; transition: 0.15s;
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; touch-action: manipulation;
     }
     .btn:hover { background: var(--surface-soft); }
     .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
     .btn-primary:hover { opacity: 0.92; background: var(--primary); }
     .btn-sm { padding: 6px 10px; font-size: 0.8rem; border-radius: 10px; }
 
-    main { flex: 1; max-width: 1180px; width: 100%; margin: 0 auto; padding: 18px 16px; }
+    main { flex: 1; max-width: 1180px; width: 100%; margin: 0 auto; padding: 18px 16px; position: relative; z-index: 10; }
     .view { display: none; animation: fadeIn 0.2s ease; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -94,7 +94,7 @@
     }
     .quick-item {
       background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 12px;
-      text-align: left; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.15s;
+      text-align: left; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.15s; touch-action: manipulation;
     }
     .quick-item:hover { transform: translateY(-2px); border-color: var(--primary); }
     .quick-item .ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
@@ -109,7 +109,7 @@
     }
     .nb-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 16px;
-      box-shadow: var(--shadow); cursor: pointer; position: relative; transition: 0.15s;
+      box-shadow: var(--shadow); cursor: pointer; position: relative; transition: 0.15s; touch-action: manipulation;
     }
     .nb-card:hover { transform: translateY(-2px); border-color: var(--primary); }
     .nb-cover {
@@ -123,6 +123,7 @@
     .toolbar {
       background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px;
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; box-shadow: var(--shadow);
+      position: relative; z-index: 25;
     }
     .toolbar select, .toolbar input[type="color"], .toolbar input[type="text"] {
       background: var(--surface-soft); border: 1px solid var(--border); color: var(--text);
@@ -133,8 +134,9 @@
 
     .paper-stage {
       background: #FFFFFF; border: 1px solid var(--border); border-radius: 18px; min-height: 620px;
-      position: relative; overflow: hidden; box-shadow: var(--shadow); touch-action: none;
+      position: relative; overflow: hidden; box-shadow: var(--shadow); touch-action: pan-y;
     }
+    .paper-stage.drawing-mode-active { touch-action: none; }
     .paper-creme { background-color: #FDF8EC; }
     .paper-pautado {
       background-color: #FFFFFF;
@@ -156,25 +158,27 @@
     #draw-canvas {
       position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none;
     }
-    #draw-canvas.drawing-active { pointer-events: auto; cursor: crosshair; }
+    #draw-canvas.drawing-active { pointer-events: auto; cursor: crosshair; z-index: 15; }
 
     .canvas-item {
       position: absolute; z-index: 10; min-width: 90px; min-height: 40px; padding: 10px 12px;
       border-radius: 10px; cursor: grab; user-select: none; transition: box-shadow 0.12s;
+      touch-action: none;
     }
     .canvas-item.selected { outline: 2px dashed var(--primary); box-shadow: 0 10px 24px rgba(139, 92, 246, 0.22); z-index: 20; }
-    .canvas-item .item-content { outline: none; white-space: pre-wrap; word-break: break-word; cursor: text; }
+    .canvas-item .item-content { outline: none; white-space: pre-wrap; word-break: break-word; cursor: text; touch-action: auto; }
     .postit-style {
       box-shadow: 0 8px 18px rgba(0,0,0,0.12); border-radius: 4px 4px 16px 4px; color: #1F2937;
     }
     .postit-tape::before {
       content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg);
       width: 56px; height: 18px; background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(0,0,0,0.06);
+      pointer-events: none;
     }
 
     .inspector {
       background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 14px;
-      box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px;
+      box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 20;
     }
     .inspector h3 { margin: 0; font-size: 0.95rem; }
     .inspector label { font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
@@ -192,7 +196,7 @@
     .mm-node {
       position: absolute; transform: translate(-50%, -50%); padding: 10px 16px; border-radius: 999px;
       background: var(--primary-soft); border: 2px solid var(--primary); color: var(--text); font-weight: 600;
-      cursor: grab; z-index: 5; min-width: 110px; text-align: center; box-shadow: var(--shadow);
+      cursor: grab; z-index: 5; min-width: 110px; text-align: center; box-shadow: var(--shadow); touch-action: none;
     }
     .mm-node.root { background: var(--primary); color: #fff; font-size: 1rem; padding: 14px 22px; }
 
@@ -205,19 +209,20 @@
 
     /* Barra inferior mobile */
     nav.bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: var(--surface);
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; background: var(--surface);
       border-top: 1px solid var(--border); display: flex; justify-content: space-around;
       padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
     }
     .nav-btn {
       background: none; border: none; color: var(--text-muted); font-size: 0.72rem; font-weight: 600;
       display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+      padding: 6px 10px; border-radius: 10px; touch-action: manipulation;
     }
-    .nav-btn.active { color: var(--primary); }
-    .nav-btn span.ico { font-size: 1.2rem; }
+    .nav-btn.active { color: var(--primary); background: var(--primary-soft); }
+    .nav-btn span.ico { font-size: 1.25rem; pointer-events: none; }
 
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(15, 12, 24, 0.55); z-index: 60;
+      position: fixed; inset: 0; background: rgba(15, 12, 24, 0.55); z-index: 120;
       display: none; place-items: center; padding: 16px;
     }
     .modal-backdrop.open { display: grid; }
@@ -241,9 +246,9 @@
     </div>
     <div class="header-actions">
       <span id="save-status" class="status-pill">Salvo</span>
-      <button class="btn btn-sm" id="btn-install-app" onclick="triggerInstall()">📲 Instalar App</button>
-      <button class="btn btn-sm" onclick="toggleTheme()">🌓 Tema</button>
-      <button class="btn btn-sm" onclick="openSettings()">🎨 Estilo</button>
+      <button type="button" class="btn btn-sm" id="btn-install-app" onclick="triggerInstall()">📲 Instalar App</button>
+      <button type="button" class="btn btn-sm" onclick="toggleTheme()">🌓 Tema</button>
+      <button type="button" class="btn btn-sm" onclick="openSettings()">🎨 Estilo</button>
     </div>
   </header>
 
@@ -256,23 +261,23 @@
           <p id="today-date">Carregando data...</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="switchView('editor')">📄 Nova Página Livre</button>
-          <button class="btn" onclick="switchView('mindmap')">🧠 Mapa Mental</button>
+          <button type="button" class="btn btn-primary" onclick="switchView('editor')">📄 Nova Página Livre</button>
+          <button type="button" class="btn" onclick="switchView('mindmap')">🧠 Mapa Mental</button>
         </div>
       </div>
 
       <div class="quick-grid">
-        <button class="quick-item" onclick="switchView('editor'); addTextItem('Novo bloco de texto')"><span class="ico">✍️</span><strong>Texto Livre</strong><span>Fontes e cores</span></button>
-        <button class="quick-item" onclick="switchView('editor'); addPostIt()"><span class="ico">🗒️</span><strong>Post-it</strong><span>Adesivo realista</span></button>
-        <button class="quick-item" onclick="switchView('editor'); enableDrawMode(true)"><span class="ico">🖊️</span><strong>Caneta → Texto</strong><span>Escrita no tablet</span></button>
-        <button class="quick-item" onclick="switchView('mindmap')"><span class="ico">🕸️</span><strong>Mapa Mental</strong><span>Ideias conectadas</span></button>
-        <button class="quick-item" onclick="switchView('notes')"><span class="ico">📝</span><strong>Anotações & Listas</strong><span>Checklists rápidos</span></button>
-        <button class="quick-item" onclick="createNotebookPrompt()"><span class="ico">📓</span><strong>Novo Caderno</strong><span>Organizar temas</span></button>
+        <button type="button" class="quick-item" onclick="switchView('editor'); addTextItem('Novo bloco de texto')"><span class="ico">✍️</span><strong>Texto Livre</strong><span>Fontes e cores</span></button>
+        <button type="button" class="quick-item" onclick="switchView('editor'); addPostIt()"><span class="ico">🗒️</span><strong>Post-it</strong><span>Adesivo realista</span></button>
+        <button type="button" class="quick-item" onclick="switchView('editor'); enableDrawMode(true)"><span class="ico">🖊️</span><strong>Caneta → Texto</strong><span>Escrita no tablet</span></button>
+        <button type="button" class="quick-item" onclick="switchView('mindmap')"><span class="ico">🕸️</span><strong>Mapa Mental</strong><span>Ideias conectadas</span></button>
+        <button type="button" class="quick-item" onclick="switchView('notes')"><span class="ico">📝</span><strong>Anotações & Listas</strong><span>Checklists rápidos</span></button>
+        <button type="button" class="quick-item" onclick="createNotebookPrompt()"><span class="ico">📓</span><strong>Novo Caderno</strong><span>Organizar temas</span></button>
       </div>
 
       <div class="section-title">
         <h2>Meus Cadernos</h2>
-        <button class="btn btn-sm btn-primary" onclick="createNotebookPrompt()">+ Criar Caderno</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="createNotebookPrompt()">+ Criar Caderno</button>
       </div>
       <div id="notebooks-list" class="notebooks-grid"></div>
     </section>
@@ -280,14 +285,14 @@
     <!-- EDITOR DE PÁGINA LIVRE -->
     <section id="view-editor" class="view">
       <div class="toolbar">
-        <button class="btn btn-sm" onclick="addTextItem('Clique para editar seu texto...')">+ Texto</button>
-        <button class="btn btn-sm" onclick="addPostIt()">+ Post-it</button>
-        <button class="btn btn-sm" onclick="addStickerPrompt()">+ Sticker</button>
+        <button type="button" class="btn btn-sm" onclick="addTextItem('Clique para editar seu texto...')">+ Texto</button>
+        <button type="button" class="btn btn-sm" onclick="addPostIt()">+ Post-it</button>
+        <button type="button" class="btn btn-sm" onclick="addStickerPrompt()">+ Sticker</button>
         <label class="btn btn-sm" style="cursor:pointer;">
           🖼️ Imagem <input type="file" accept="image/*" hidden onchange="handleImageUpload(event)" />
         </label>
-        <button class="btn btn-sm" id="btn-draw-toggle" onclick="toggleDrawMode()">✏️ Desenhar</button>
-        <button class="btn btn-sm" id="btn-handwriting" onclick="toggleHandwritingMode()">🪄 Caneta → Texto: OFF</button>
+        <button type="button" class="btn btn-sm" id="btn-draw-toggle" onclick="toggleDrawMode()">✏️ Desenhar</button>
+        <button type="button" class="btn btn-sm" id="btn-handwriting" onclick="toggleHandwritingMode()">🪄 Caneta → Texto: OFF</button>
         <select id="paper-select" onchange="changePaper(this.value)">
           <option value="">Papel Branco</option>
           <option value="paper-creme">Papel Creme</option>
@@ -296,8 +301,8 @@
           <option value="paper-quadriculado">Papel Quadriculado</option>
           <option value="paper-lavanda">Papel Lavanda</option>
         </select>
-        <button class="btn btn-sm" onclick="clearDrawing()">Limpar Traços</button>
-        <button class="btn btn-sm" onclick="window.print()">🖨️ PDF / Imprimir</button>
+        <button type="button" class="btn btn-sm" onclick="clearDrawing()">Limpar Traços</button>
+        <button type="button" class="btn btn-sm" onclick="window.print()">🖨️ PDF / Imprimir</button>
       </div>
 
       <div class="workspace">
@@ -334,8 +339,8 @@
               <input id="insp-bg" type="color" value="#FEF08A" oninput="updateSelectedStyle('backgroundColor', this.value)" />
             </div>
             <div style="display:flex;gap:6px;">
-              <button class="btn btn-sm" onclick="duplicateSelected()">Duplicar</button>
-              <button class="btn btn-sm" style="color:#DC2626;" onclick="deleteSelected()">Excluir</button>
+              <button type="button" class="btn btn-sm" onclick="duplicateSelected()">Duplicar</button>
+              <button type="button" class="btn btn-sm" style="color:#DC2626;" onclick="deleteSelected()">Excluir</button>
             </div>
           </div>
 
@@ -344,7 +349,7 @@
             <label>Adicionar Fonte (Google Fonts)</label>
             <div style="display:flex;gap:6px;">
               <input id="new-font-input" type="text" placeholder="Ex: Pacifico, Lora, Montserrat" />
-              <button class="btn btn-sm btn-primary" onclick="addCustomFont()">+</button>
+              <button type="button" class="btn btn-sm btn-primary" onclick="addCustomFont()">+</button>
             </div>
           </div>
 
@@ -363,8 +368,8 @@
     <section id="view-mindmap" class="view">
       <div class="toolbar">
         <input id="mm-new-text" type="text" placeholder="Nova ideia ou subtópico..." />
-        <button class="btn btn-sm btn-primary" onclick="addMindMapNode()">+ Adicionar Nó</button>
-        <button class="btn btn-sm" onclick="resetMindMap()">Reiniciar Mapa</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="addMindMapNode()">+ Adicionar Nó</button>
+        <button type="button" class="btn btn-sm" onclick="resetMindMap()">Reiniciar Mapa</button>
       </div>
       <div id="mindmap-box" class="mindmap-box">
         <svg id="mm-svg"></svg>
@@ -375,18 +380,18 @@
     <section id="view-notes" class="view">
       <div class="toolbar">
         <input id="note-title" type="text" placeholder="Título da anotação ou tarefa..." style="flex:1;min-width:180px;" />
-        <button class="btn btn-sm btn-primary" onclick="addQuickNote()">+ Anotação</button>
-        <button class="btn btn-sm" onclick="addQuickTask()">☑️ Tarefa</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="addQuickNote()">+ Anotação</button>
+        <button type="button" class="btn btn-sm" onclick="addQuickTask()">☑️ Tarefa</button>
       </div>
       <div id="notes-container" class="cards-list"></div>
     </section>
   </main>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-target="home" onclick="switchView('home')"><span class="ico">🏠</span>Início</button>
-    <button class="nav-btn" data-target="editor" onclick="switchView('editor')"><span class="ico">📖</span>Página Livre</button>
-    <button class="nav-btn" data-target="mindmap" onclick="switchView('mindmap')"><span class="ico">🧠</span>Mapas</button>
-    <button class="nav-btn" data-target="notes" onclick="switchView('notes')"><span class="ico">✅</span>Notas & Listas</button>
+    <button type="button" class="nav-btn active" data-target="home" onclick="switchView('home')"><span class="ico">🏠</span>Início</button>
+    <button type="button" class="nav-btn" data-target="editor" onclick="switchView('editor')"><span class="ico">📖</span>Página Livre</button>
+    <button type="button" class="nav-btn" data-target="mindmap" onclick="switchView('mindmap')"><span class="ico">🧠</span>Mapas</button>
+    <button type="button" class="nav-btn" data-target="notes" onclick="switchView('notes')"><span class="ico">✅</span>Notas & Listas</button>
   </nav>
 
   <!-- MODAL CONVERSÃO CANETA -> TEXTO -->
@@ -396,8 +401,8 @@
       <p style="font-size:0.84rem;color:var(--text-muted);">Revise ou ajuste o texto abaixo antes de inserir na página:</p>
       <textarea id="hw-result-text" rows="3" style="width:100%;padding:10px;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;font-family:inherit;"></textarea>
       <div style="display:flex;justify-content:flex-end;gap:8px;">
-        <button class="btn btn-sm" onclick="closeModal('hw-modal')">Cancelar</button>
-        <button class="btn btn-sm btn-primary" onclick="confirmHandwritingText()">Inserir na Página</button>
+        <button type="button" class="btn btn-sm" onclick="closeModal('hw-modal')">Cancelar</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="confirmHandwritingText()">Inserir na Página</button>
       </div>
     </div>
   </div>
@@ -408,23 +413,23 @@
       <h3 style="margin-top:0;">🎨 Personalizar Aparência</h3>
       <label style="font-size:0.82rem;">Paleta de Cores</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px;">
-        <button class="btn btn-sm" onclick="setPalette('lavender')">💜 Lavanda</button>
-        <button class="btn btn-sm" onclick="setPalette('rose')">🌸 Rosa Pastel</button>
-        <button class="btn btn-sm" onclick="setPalette('beige')">🤎 Bege</button>
-        <button class="btn btn-sm" onclick="setPalette('sage')">🌿 Verde Sálvia</button>
+        <button type="button" class="btn btn-sm" onclick="setPalette('lavender')">💜 Lavanda</button>
+        <button type="button" class="btn btn-sm" onclick="setPalette('rose')">🌸 Rosa Pastel</button>
+        <button type="button" class="btn btn-sm" onclick="setPalette('beige')">🤎 Bege</button>
+        <button type="button" class="btn btn-sm" onclick="setPalette('sage')">🌿 Verde Sálvia</button>
       </div>
       <div id="install-guide" style="background:var(--surface-soft);padding:12px;border-radius:12px;font-size:0.82rem;margin-bottom:12px;">
         <strong>Instalar no Tablet / Celular:</strong><br/>
         No Chrome, toque nos <b>3 pontinhos (⋮)</b> no canto superior e selecione <b>"Instalar aplicativo"</b>.
       </div>
       <div style="text-align:right;">
-        <button class="btn btn-sm btn-primary" onclick="closeModal('style-modal')">Concluir</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="closeModal('style-modal')">Concluir</button>
       </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'meu_mundo_de_ideias_v2';
+    const STORAGE_KEY = 'meu_mundo_de_ideias_v5';
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || {
       theme: 'light',
       palette: 'lavender',
@@ -436,7 +441,7 @@
         { id: 'nb3', title: 'Bíblia e Pregações', desc: 'Devocionais e anotações', color: '#10B981', icon: '📖' }
       ],
       items: [
-        { id: 'it1', type: 'postit', text: 'Bem-vinda ao Meu Mundo de Ideias! Arraste ou clique duas vezes para editar ✨', x: 36, y: 40, bg: '#FEF08A', color: '#1F2937', fontFamily: 'Caveat', fontSize: '22px' }
+        { id: 'it1', type: 'postit', text: 'Bem-vinda ao Meu Mundo de Ideias! Arraste ou clique para editar ✨', x: 36, y: 40, bg: '#FEF08A', color: '#1F2937', fontFamily: 'Caveat', fontSize: '22px' }
       ],
       mindmap: [
         { id: 'm1', text: 'Ideia Central ✨', x: 50, y: 50, root: true },
@@ -490,9 +495,14 @@
 
     function switchView(name) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.getElementById('view-' + name).classList.add('active');
+      const targetView = document.getElementById('view-' + name);
+      if (targetView) targetView.classList.add('active');
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.target === name));
-      if (name === 'editor') resizeCanvas();
+      if (name === 'editor') {
+        enableDrawMode(false);
+        resizeCanvas();
+        renderCanvasItems();
+      }
       if (name === 'mindmap') renderMindMap();
     }
 
@@ -638,6 +648,9 @@
           content.className = 'item-content';
           content.contentEditable = true;
           content.textContent = item.text;
+          content.addEventListener('pointerdown', (ev) => {
+            ev.stopPropagation();
+          });
           content.addEventListener('input', () => {
             item.text = content.textContent;
             if (selectedId === item.id) document.getElementById('insp-text').value = item.text;
@@ -647,9 +660,10 @@
         }
 
         div.addEventListener('pointerdown', (e) => {
+          if (drawMode) return;
           e.stopPropagation();
-          selectItem(item.id);
-          if (e.target.classList.contains('item-content') && document.activeElement === e.target) return;
+          selectItemOnly(item.id);
+          if (e.target.classList.contains('item-content')) return;
           const startX = e.clientX - item.x;
           const startY = e.clientY - item.y;
           function onMove(ev) {
@@ -671,10 +685,22 @@
       });
     }
 
+    function selectItemOnly(id) {
+      selectedId = id;
+      document.querySelectorAll('#paper-stage .canvas-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.id === id);
+      });
+      syncInspectorForSelected();
+    }
+
     function selectItem(id) {
       selectedId = id;
       renderCanvasItems();
-      const item = state.items.find(i => i.id === id);
+      syncInspectorForSelected();
+    }
+
+    function syncInspectorForSelected() {
+      const item = state.items.find(i => i.id === selectedId);
       const empty = document.getElementById('inspector-empty');
       const ctrls = document.getElementById('inspector-controls');
       if (!item || item.type === 'image') {
@@ -692,9 +718,9 @@
     }
 
     function deselectAll(e) {
-      if (e.target.id === 'paper-stage') {
+      if (e.target.id === 'paper-stage' || e.target.id === 'draw-canvas') {
         selectedId = null;
-        renderCanvasItems();
+        document.querySelectorAll('#paper-stage .canvas-item').forEach(el => el.classList.remove('selected'));
         document.getElementById('inspector-empty').style.display = 'block';
         document.getElementById('inspector-controls').style.display = 'none';
       }
@@ -704,7 +730,8 @@
       const item = state.items.find(i => i.id === selectedId);
       if (!item) return;
       item.text = val;
-      renderCanvasItems();
+      const el = document.querySelector(`#paper-stage .canvas-item[data-id="${selectedId}"] .item-content`);
+      if (el) el.textContent = val;
       saveState();
     }
 
@@ -712,11 +739,18 @@
       const item = state.items.find(i => i.id === selectedId);
       if (!item) return;
       item[prop] = val;
-      renderCanvasItems();
+      const el = document.querySelector(`#paper-stage .canvas-item[data-id="${selectedId}"]`);
+      if (el) {
+        if (prop === 'fontFamily') el.style.fontFamily = `"${val}", sans-serif`;
+        if (prop === 'fontSize') el.style.fontSize = val;
+        if (prop === 'color') el.style.color = val;
+        if (prop === 'backgroundColor') el.style.backgroundColor = val;
+      }
       saveState();
     }
 
     function addTextItem(text) {
+      enableDrawMode(false);
       const id = 'it' + Date.now();
       state.items.push({
         id, type: 'text', text, x: 50 + (state.items.length * 14) % 180, y: 60 + (state.items.length * 18) % 220,
@@ -727,6 +761,7 @@
     }
 
     function addPostIt() {
+      enableDrawMode(false);
       const palette = ['#FEF08A', '#FBCFE8', '#DDD6FE', '#BAE6FD', '#BBF7D0'];
       const id = 'it' + Date.now();
       state.items.push({
@@ -739,6 +774,7 @@
     }
 
     function addStickerPrompt() {
+      enableDrawMode(false);
       const stickers = ['🌸', '✨', '🦋', '💖', '🌿', '☕', '📖', '✝️', '⭐', '🎀'];
       const chosen = prompt('Escolha ou cole um emoji/sticker:
 ' + stickers.join(' '), '🌸');
@@ -750,6 +786,7 @@
     }
 
     function handleImageUpload(e) {
+      enableDrawMode(false);
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
@@ -782,7 +819,8 @@
 
     function changePaper(cls) {
       const stage = document.getElementById('paper-stage');
-      stage.className = 'paper-stage ' + cls;
+      const isDrawing = stage.classList.contains('drawing-mode-active');
+      stage.className = 'paper-stage ' + cls + (isDrawing ? ' drawing-mode-active' : '');
     }
 
     /* Desenho & Caneta -> Texto */
@@ -833,17 +871,24 @@
     }
 
     function enableDrawMode(val) {
-      drawMode = val;
+      drawMode = !!val;
       const canvas = document.getElementById('draw-canvas');
+      const stage = document.getElementById('paper-stage');
       canvas.classList.toggle('drawing-active', drawMode);
+      stage.classList.toggle('drawing-mode-active', drawMode);
       document.getElementById('btn-draw-toggle').classList.toggle('btn-primary', drawMode);
+      if (!drawMode && handwritingMode) {
+        handwritingMode = false;
+        document.getElementById('btn-handwriting').textContent = '🪄 Caneta → Texto: OFF';
+        document.getElementById('btn-handwriting').classList.remove('btn-primary');
+      }
     }
 
     function toggleDrawMode() { enableDrawMode(!drawMode); }
 
     function toggleHandwritingMode() {
       handwritingMode = !handwritingMode;
-      if (handwritingMode) enableDrawMode(true);
+      enableDrawMode(handwritingMode);
       document.getElementById('btn-handwriting').textContent = '🪄 Caneta → Texto: ' + (handwritingMode ? 'ON' : 'OFF');
       document.getElementById('btn-handwriting').classList.toggle('btn-primary', handwritingMode);
     }
@@ -941,7 +986,7 @@
               ${n.isTask ? `<input type="checkbox" ${n.done ? 'checked' : ''} onchange="toggleNote('${n.id}')" />` : '📝'}
               <span style="${n.done ? 'text-decoration:line-through;opacity:0.6;' : ''}">${n.title}</span>
             </label>
-            <button class="btn btn-sm" onclick="deleteNote('${n.id}')">✕</button>
+            <button type="button" class="btn btn-sm" onclick="deleteNote('${n.id}')">✕</button>
           </div>
         </div>
       `).join('');

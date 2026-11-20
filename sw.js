@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meu-mundo-de-ideias-v5';
+const CACHE_NAME = 'meu-mundo-de-ideias-v6';
 const ASSETS = [
   './',
   './index.html',
