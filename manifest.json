@@ -1,14 +1,13 @@
 {
-  "name": "Meu Mundo de Ideias",
+  "name": "MEU MUNDO DE IDEIAS — Caderno Digital Criativo",
   "short_name": "Mundo de Ideias",
   "description": "Um espaço para tudo o que passa pela sua mente — caderno digital criativo, mapas mentais, post-its e scrapbook.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "any",
   "background_color": "#FAF8FC",
   "theme_color": "#8B5CF6",
-  "lang": "pt-BR",
+  "orientation": "any",
   "icons": [
     {
       "src": "./icon-192.png",
