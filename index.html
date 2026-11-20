@@ -62,8 +62,9 @@
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; }
     .brand-badge {
       width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: #fff; display: grid; place-items: center; font-size: 1.1rem;
+      color: #fff; display: grid; place-items: center; font-size: 1.1rem; overflow: hidden;
     }
+    .brand-badge img { width: 100%; height: 100%; object-fit: cover; }
     .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .btn {
       border: 1px solid var(--border); background: var(--surface); color: var(--text);
@@ -232,7 +233,7 @@
 <body>
   <header>
     <div class="brand">
-      <div class="brand-badge">✨</div>
+      <div class="brand-badge"><img src="./icon-192.png" alt="Ícone Borboleta" /></div>
       <div>
         <div>MEU MUNDO DE IDEIAS</div>
         <div style="font-size:0.72rem;color:var(--text-muted);font-weight:500;">Um espaço para tudo o que passa pela sua mente</div>
@@ -307,7 +308,7 @@
         <aside class="inspector">
           <h3>Propriedades & Fontes</h3>
           <div id="inspector-empty" style="font-size:0.82rem;color:var(--text-muted);">
-            Selecione um texto ou post-it na folha para editar diretamente, ou use o campo abaixo para adicionar novas fontes do Google Fonts.
+            Selecione um texto ou post-it na folha para editar diretamente, ou adicione fontes do Google Fonts ou arquivos baixados no seu tablet abaixo.
           </div>
           <div id="inspector-controls" style="display:none;flex-direction:column;gap:8px;">
             <div>
@@ -340,11 +341,19 @@
 
           <hr style="border:none;border-top:1px solid var(--border);width:100%;" />
           <div>
-            <label>Adicionar Nova Fonte (Google Fonts)</label>
+            <label>Adicionar Fonte (Google Fonts)</label>
             <div style="display:flex;gap:6px;">
               <input id="new-font-input" type="text" placeholder="Ex: Pacifico, Lora, Montserrat" />
               <button class="btn btn-sm btn-primary" onclick="addCustomFont()">+</button>
             </div>
+          </div>
+
+          <div>
+            <label>Importar Fonte Baixada no Tablet (.ttf, .otf, .woff, .woff2)</label>
+            <label class="btn btn-sm" style="width:100%;justify-content:center;cursor:pointer;">
+              📂 Escolher Arquivo de Fonte
+              <input id="local-font-file" type="file" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2,application/x-font-ttf,application/font-woff" hidden onchange="handleLocalFontUpload(event)" />
+            </label>
           </div>
         </aside>
       </div>
@@ -420,6 +429,7 @@
       theme: 'light',
       palette: 'lavender',
       fonts: ['Plus Jakarta Sans', 'Caveat', 'Dancing Script', 'Lora'],
+      customFonts: [],
       notebooks: [
         { id: 'nb1', title: 'Meu Diário', desc: 'Reflexões e momentos especiais', color: '#8B5CF6', icon: '📔' },
         { id: 'nb2', title: 'Estudos & Ideias', desc: 'Mapas mentais e resumos', color: '#EC4899', icon: '💡' },
@@ -440,6 +450,8 @@
       ]
     };
 
+    if (!Array.isArray(state.customFonts)) state.customFonts = [];
+
     let selectedId = null;
     let drawMode = false;
     let handwritingMode = false;
@@ -447,17 +459,26 @@
     let deferredPrompt = null;
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.warn('Armazenamento cheio:', err);
+      }
       const el = document.getElementById('save-status');
       el.textContent = 'Salvando...';
       setTimeout(() => { el.textContent = 'Salvo'; }, 350);
     }
 
-    function init() {
+    async function init() {
       document.documentElement.setAttribute('data-theme', state.theme);
       document.documentElement.setAttribute('data-palette', state.palette);
       document.getElementById('today-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      state.fonts.forEach(f => loadGoogleFont(f));
+      state.fonts.forEach(f => {
+        if (!state.customFonts.some(cf => cf.name === f)) loadGoogleFont(f);
+      });
+      for (const cf of state.customFonts) {
+        await registerFontFaceFromDataUrl(cf.name, cf.dataUrl);
+      }
       renderFontSelect();
       renderNotebooks();
       renderCanvasItems();
@@ -520,7 +541,7 @@
       renderNotebooks();
     }
 
-    /* Fontes */
+    /* Fontes (Google Fonts + Arquivos baixados no tablet) */
     function loadGoogleFont(fontName) {
       const clean = fontName.trim();
       if (!clean) return;
@@ -531,6 +552,45 @@
       link.rel = 'stylesheet';
       link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(clean) + ':wght@400;600;700&display=swap';
       document.head.appendChild(link);
+    }
+
+    async function registerFontFaceFromDataUrl(fontName, dataUrl) {
+      try {
+        const fontFace = new FontFace(fontName, `url(${dataUrl})`);
+        const loaded = await fontFace.load();
+        document.fonts.add(loaded);
+      } catch (err) {
+        console.warn('Falha ao carregar fonte local:', fontName, err);
+      }
+    }
+
+    function handleLocalFontUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' ').trim() || ('Fonte Local ' + (state.customFonts.length + 1));
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result;
+        await registerFontFaceFromDataUrl(baseName, dataUrl);
+        if (!state.fonts.includes(baseName)) {
+          state.fonts.push(baseName);
+        }
+        const existingIdx = state.customFonts.findIndex(cf => cf.name === baseName);
+        if (existingIdx >= 0) {
+          state.customFonts[existingIdx].dataUrl = dataUrl;
+        } else {
+          state.customFonts.push({ name: baseName, dataUrl });
+        }
+        renderFontSelect();
+        if (selectedId) {
+          updateSelectedStyle('fontFamily', baseName);
+          document.getElementById('insp-font').value = baseName;
+        }
+        saveState();
+        alert('Fonte "' + baseName + '" adicionada! Selecione um texto ou post-it e escolha-a na lista de fontes.');
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
     }
 
     function renderFontSelect() {
@@ -567,7 +627,7 @@
         div.style.top = item.y + 'px';
         div.style.backgroundColor = item.bg || 'transparent';
         div.style.color = item.color || '#272235';
-        div.style.fontFamily = item.fontFamily || 'Plus Jakarta Sans';
+        div.style.fontFamily = item.fontFamily ? `"${item.fontFamily}", sans-serif` : 'Plus Jakarta Sans';
         div.style.fontSize = item.fontSize || '18px';
         div.dataset.id = item.id;
 
@@ -680,7 +740,8 @@
 
     function addStickerPrompt() {
       const stickers = ['🌸', '✨', '🦋', '💖', '🌿', '☕', '📖', '✝️', '⭐', '🎀'];
-      const chosen = prompt('Escolha ou cole um emoji/sticker:\n' + stickers.join(' '), '🌸');
+      const chosen = prompt('Escolha ou cole um emoji/sticker:
+' + stickers.join(' '), '🌸');
       if (!chosen) return;
       const id = 'it' + Date.now();
       state.items.push({ id, type: 'text', text: chosen, x: 120, y: 120, fontSize: '42px', bg: 'transparent' });
